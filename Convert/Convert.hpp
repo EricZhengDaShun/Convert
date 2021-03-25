@@ -3,11 +3,17 @@
 #include <string>
 #include <locale>
 #include <cuchar>
+#include <exception>
 
 namespace Convert {
 
     template<typename T = std::wstring, typename U = std::string>
     inline U wcharToUtf8(const T& source) {
+        if (std::locale().name() == std::locale().classic().name()) {
+            std::exception e("Convert must be set global locale");
+            throw e;
+        }
+
         auto& facet = std::use_facet<std::codecvt<wchar_t, char, std::mbstate_t>>(std::locale());
 
         const size_t maxSize = source.size() * facet.max_length();
@@ -27,6 +33,11 @@ namespace Convert {
 
     template<typename T = std::string, typename U = std::wstring>
     inline U utf8ToWchar(const T& source) {
+        if (std::locale().name() == std::locale().classic().name()) {
+            std::exception e("Convert must be set global locale");
+            throw e;
+        }
+
         auto& facet = std::use_facet<std::codecvt<wchar_t, char, std::mbstate_t>>(std::locale());
 
         U direct(source.size(), '\0');
